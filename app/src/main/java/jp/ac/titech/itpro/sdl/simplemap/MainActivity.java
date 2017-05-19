@@ -11,6 +11,7 @@ import android.support.v7.app.AppCompatActivity;
 import android.os.Bundle;
 import android.util.Log;
 import android.widget.Toast;
+import android.view.View;
 
 import com.google.android.gms.common.ConnectionResult;
 import com.google.android.gms.common.api.GoogleApiClient;
@@ -123,6 +124,7 @@ public class MainActivity extends AppCompatActivity implements
         Log.d(TAG, "onLocationChanged: " + location);
         googleMap.animateCamera(CameraUpdateFactory
                 .newLatLng(new LatLng(location.getLatitude(), location.getLongitude())));
+        LocationServices.FusedLocationApi.removeLocationUpdates(googleApiClient, this);
     }
 
     @Override
@@ -130,9 +132,9 @@ public class MainActivity extends AppCompatActivity implements
                                            @NonNull String[] permissions, @NonNull int[] grants) {
         Log.d(TAG, "onRequestPermissionsResult");
         switch (reqCode) {
-        case REQCODE_PERMISSIONS:
-            startLocationUpdate(false);
-            break;
+            case REQCODE_PERMISSIONS:
+                startLocationUpdate(false);
+                break;
         }
     }
 
@@ -157,5 +159,12 @@ public class MainActivity extends AppCompatActivity implements
         Log.d(TAG, "stopLocationUpdate");
         LocationServices.FusedLocationApi.removeLocationUpdates(googleApiClient, this);
         state = UpdatingState.STOPPED;
+    }
+
+    public void onClickButton(View v) {
+        if (ActivityCompat.checkSelfPermission(this, Manifest.permission.ACCESS_FINE_LOCATION) != PackageManager.PERMISSION_GRANTED && ActivityCompat.checkSelfPermission(this, Manifest.permission.ACCESS_COARSE_LOCATION) != PackageManager.PERMISSION_GRANTED) {
+            return;
+        }
+        LocationServices.FusedLocationApi.requestLocationUpdates(googleApiClient, locationRequest, this);
     }
 }
